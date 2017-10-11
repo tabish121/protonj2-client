@@ -16,24 +16,15 @@
  */
 package org.messaginghub.amqperative;
 
-import java.net.URI;
+public class Message {
+    Object payload;
 
-public class Connection {
-    //TODO: make interface. Add Container?
-
-    public static Connection createConnection(String remoteURI) throws Exception {
-        return new Connection();
+    public Message(Object payload) {
+        //TODO: or something else
+        this.payload = payload;
     }
 
-    public static Connection createConnection(URI remoteURI) throws Exception {
-        return new Connection();
-    }
-
-    public Sender createSender(String address) throws Exception {
-        return null;
-    }
-
-    public Receiver createReceiver(String address) throws Exception {
-        return null;
+    public Object getPayload() {
+        return payload;
     }
 }

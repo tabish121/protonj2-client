@@ -20,17 +20,46 @@
  */
 package org.messaginghub.amqperative.example;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import org.messaginghub.amqperative.Connection;
+import org.messaginghub.amqperative.Message;
+import org.messaginghub.amqperative.Receiver;
+import org.messaginghub.amqperative.Sender;
+import org.messaginghub.amqperative.Tracker;
+
 public class HelloWorld {
 
     public static void main(String[] args) throws Exception {
+        List<Message> messages = IntStream.range(1, 10).mapToObj(i -> new Message(String.format("Message %s", i)))
+                .collect(Collectors.toList());
 
-        try {
+        // == Receive ==
 
-        } catch (Exception exp) {
-            System.out.println("Caught exception, exiting.");
-            exp.printStackTrace(System.out);
-            System.exit(1);
-        } finally {
+        Connection conn = Connection.createConnection("localhost");
+        Sender sender = conn.createSender("address");
+
+        List<Tracker> trackers = new ArrayList<>();
+        for(Message msg : messages) {
+            trackers.add(sender.send(msg));
         }
+
+        for(Tracker tracker : trackers) {
+            System.out.println(tracker.get().getState());
+        }
+
+        // == Receive ==
+
+        Receiver receiver = conn.createReceiver("address");
+        receiver.deliveries().forEach(delivery -> {
+            try {
+                delivery.get().getPayload();
+            } catch (Exception e) {
+                e.printStackTrace();// TODO
+            }
+        });
     }
 }

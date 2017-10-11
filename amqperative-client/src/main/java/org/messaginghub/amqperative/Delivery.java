@@ -16,24 +16,8 @@
  */
 package org.messaginghub.amqperative;
 
-import java.net.URI;
+import java.util.concurrent.Future;
 
-public class Connection {
-    //TODO: make interface. Add Container?
-
-    public static Connection createConnection(String remoteURI) throws Exception {
-        return new Connection();
-    }
-
-    public static Connection createConnection(URI remoteURI) throws Exception {
-        return new Connection();
-    }
-
-    public Sender createSender(String address) throws Exception {
-        return null;
-    }
-
-    public Receiver createReceiver(String address) throws Exception {
-        return null;
-    }
+public interface Delivery extends Future<Message>{
+    //TODO: other impl. Completable future?
 }

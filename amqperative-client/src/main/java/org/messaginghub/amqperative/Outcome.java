@@ -16,24 +16,7 @@
  */
 package org.messaginghub.amqperative;
 
-import java.net.URI;
-
-public class Connection {
-    //TODO: make interface. Add Container?
-
-    public static Connection createConnection(String remoteURI) throws Exception {
-        return new Connection();
-    }
-
-    public static Connection createConnection(URI remoteURI) throws Exception {
-        return new Connection();
-    }
-
-    public Sender createSender(String address) throws Exception {
-        return null;
-    }
-
-    public Receiver createReceiver(String address) throws Exception {
-        return null;
-    }
+public interface Outcome {
+    //TODO: more useful state type, e.g enum or objects.
+    int getState();
 }

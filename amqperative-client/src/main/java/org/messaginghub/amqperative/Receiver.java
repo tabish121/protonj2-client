@@ -16,6 +16,8 @@
  */
 package org.messaginghub.amqperative;
 
-public class Receiver {
+import java.util.stream.Stream;
 
+public interface Receiver {
+    Stream<Delivery> deliveries();
 }

@@ -16,6 +16,6 @@
  */
 package org.messaginghub.amqperative;
 
-public class Sender {
-
+public interface Sender {
+    Tracker send(Message msg);
 }
