@@ -68,7 +68,7 @@ public class SendAndReceiveTest extends ImperativeClientTestSupport {
                 final long stime = System.currentTimeMillis();
 
                 message.applicationProperty("SendTime", stime);
-                message.messageId(latch.getCount());
+                message.messageId("ID:" + latch.getCount());
 
                 finalSend = sender.send(message);
 
