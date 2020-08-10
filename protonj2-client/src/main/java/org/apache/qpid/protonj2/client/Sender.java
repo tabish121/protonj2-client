@@ -16,12 +16,10 @@
  */
 package org.apache.qpid.protonj2.client;
 
-import java.io.OutputStream;
 import java.util.Map;
 import java.util.concurrent.Future;
 
 import org.apache.qpid.protonj2.client.exceptions.ClientException;
-import org.apache.qpid.protonj2.types.messaging.Section;
 
 public interface Sender {
 
@@ -189,41 +187,11 @@ public interface Sender {
      * multiple sends of {@link AdvancedMessage} encoding to the remote as part of a streaming
      * send operation.
      *
+     * @param options
+     *      The options to use when creating and configuring the new {@link SendContext}.
+     *
      * @return a new {@link SendContext} that can be used to stream message data to the remote.
      */
-    SendContext createSendContext();
-
-    /**
-     * Creates an {@link MessageOutputStream} instance configured with the given options.
-     * <p>
-     * The {@link MessageOutputStream} can be used to write the payload of an AMQP Message in
-     * chunks when the source is not readily available in memory or as part of a larger streams
-     * based component.  The {@link Message} based stream allows for control over the AMQP
-     * message {@link Section} values that are sent but does the encoding itself.  For stream
-     * of message data where the content source already consists of an AMQP encoded message the
-     * {@link RawOutputStream} should be used instead.
-     *
-     * @param options
-     *      The stream options to use to configure the returned {@link MessageOutputStream}
-     *
-     * @return a {@link MessageOutputStream} instance configured using the given options.
-     */
-    MessageOutputStream outputStream(MessageOutputStreamOptions options);
-
-    /**
-     * Creates an {@link RawOutputStream} instance configured with the given options.
-     * <p>
-     * The {@link RawOutputStream} can be used to write the payload of an AMQP Message in
-     * chunks when the source is not readily available in memory or as part of a larger streams
-     * based component.  The source of the bytes written to the {@link RawOutputStream} should
-     * consist of already encoded AMQP {@link Message} data.  For an {@link OutputStream} that
-     * performs the encoding of message data refer to the {@link MessageOutputStream}.
-     *
-     * @param options
-     *      The stream options to use to configure the returned {@link MessageOutputStream}
-     *
-     * @return a {@link RawOutputStream} instance configured using the given options.
-     */
-    RawOutputStream outputStream(RawOutputStreamOptions options);
+    SendContext createSendContext(SendContextOptions options);
 
 }

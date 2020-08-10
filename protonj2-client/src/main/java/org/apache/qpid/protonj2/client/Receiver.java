@@ -222,9 +222,12 @@ public interface Receiver {
      * data as it arrives regardless of the complete delivery date having been transmitted from the remote
      * peer.
      *
+     * @param options
+     *      The options to use when creating and configuring the new {@link ReceiveContext}.
+     *
      * @return a new {@link ReceiveContext} that can be used to read incoming {@link Delivery} data.
      */
-    ReceiveContext createReceiveContext();
+    ReceiveContext createReceiveContext(ReceiveContextOptions options);
 
     /**
      * Requests the remote to drain previously granted credit for this {@link Receiver} link.

@@ -32,11 +32,8 @@ import org.apache.qpid.protonj2.client.AdvancedMessage;
 import org.apache.qpid.protonj2.client.DeliveryMode;
 import org.apache.qpid.protonj2.client.ErrorCondition;
 import org.apache.qpid.protonj2.client.Message;
-import org.apache.qpid.protonj2.client.MessageOutputStream;
-import org.apache.qpid.protonj2.client.MessageOutputStreamOptions;
-import org.apache.qpid.protonj2.client.RawOutputStream;
-import org.apache.qpid.protonj2.client.RawOutputStreamOptions;
 import org.apache.qpid.protonj2.client.SendContext;
+import org.apache.qpid.protonj2.client.SendContextOptions;
 import org.apache.qpid.protonj2.client.Sender;
 import org.apache.qpid.protonj2.client.SenderOptions;
 import org.apache.qpid.protonj2.client.Source;
@@ -213,18 +210,8 @@ public class ClientSender implements Sender {
     }
 
     @Override
-    public SendContext createSendContext() {
-        return new ClientSendContext(this);
-    }
-
-    @Override
-    public MessageOutputStream outputStream(MessageOutputStreamOptions options) {
-        return new ClientMessageOutputStream(this, options);
-    }
-
-    @Override
-    public RawOutputStream outputStream(RawOutputStreamOptions options) {
-        return new ClientRawOutputStream(this, options);
+    public SendContext createSendContext(SendContextOptions options) {
+        return new ClientSendContext(this, options);
     }
 
     @Override
@@ -505,7 +492,7 @@ public class ClientSender implements Sender {
     Tracker sendMessage(AdvancedMessage<?> message, boolean waitForCredit) throws ClientException {
         final ClientFuture<ClientTracker> operation = session.getFutureFactory().createFuture();
         final ProtonBuffer buffer = message.encode();
-        final CompletedClientSendContext context = new CompletedClientSendContext(this, message.messageFormat());
+        final ClientSendContext context = new ClientSendContext(this, message.messageFormat(), true);
 
         executor.execute(() -> {
             if (protonSender.isSendable()) {
@@ -528,7 +515,7 @@ public class ClientSender implements Sender {
         return session.request(this, operation);
     }
 
-   ClientTracker sendMessage(ClientSendContext context, AdvancedMessage<?> message) throws ClientException {
+    ClientTracker sendMessage(ClientSendContext context, AdvancedMessage<?> message) throws ClientException {
         final ClientFuture<ClientTracker> operation = session.getFutureFactory().createFuture();
         final ProtonBuffer buffer = message.encode();
 
@@ -662,34 +649,6 @@ public class ClientSender implements Sender {
         } else {
             openFuture.complete(this);
             closeFuture.complete(this);
-        }
-    }
-
-    //----- Immutable ClientSenderContext for standard send calls
-
-    private static final class CompletedClientSendContext extends ClientSendContext {
-
-        private final int messageFormat;
-
-        CompletedClientSendContext(ClientSender sender, int messageFormat) {
-            super(sender);
-
-            this.messageFormat = messageFormat;
-        }
-
-        @Override
-        int messageFormat() {
-            return messageFormat;
-        }
-
-        @Override
-        public boolean completed() {
-            return true;
-        }
-
-        @Override
-        public boolean aborted() {
-            return false;
         }
     }
 }

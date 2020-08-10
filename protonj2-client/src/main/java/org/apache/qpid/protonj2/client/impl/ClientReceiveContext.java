@@ -16,11 +16,13 @@
  */
 package org.apache.qpid.protonj2.client.impl;
 
+import java.io.InputStream;
+
 import org.apache.qpid.protonj2.client.Delivery;
+import org.apache.qpid.protonj2.client.InputStreamOptions;
 import org.apache.qpid.protonj2.client.Message;
-import org.apache.qpid.protonj2.client.RawInputStream;
-import org.apache.qpid.protonj2.client.RawInputStreamOptions;
 import org.apache.qpid.protonj2.client.ReceiveContext;
+import org.apache.qpid.protonj2.client.ReceiveContextOptions;
 import org.apache.qpid.protonj2.client.exceptions.ClientException;
 import org.apache.qpid.protonj2.types.transport.Transfer;
 
@@ -31,10 +33,13 @@ import org.apache.qpid.protonj2.types.transport.Transfer;
 public class ClientReceiveContext implements ReceiveContext {
 
     private final ClientReceiver receiver;
+    private final ReceiveContextOptions options;
+
     private ClientDelivery delivery;
 
-    ClientReceiveContext(ClientReceiver receiver) {
+    ClientReceiveContext(ClientReceiver receiver, ReceiveContextOptions options) {
         this.receiver = receiver;
+        this.options = new ReceiveContextOptions(options);
     }
 
     @Override
@@ -42,6 +47,10 @@ public class ClientReceiveContext implements ReceiveContext {
         return delivery;
     }
 
+    @Override
+    public ClientReceiver receiver() {
+        return receiver;
+    }
 
     @Override
     public <E> Message<E> message() throws ClientException {
@@ -71,7 +80,7 @@ public class ClientReceiveContext implements ReceiveContext {
     }
 
     @Override
-    public RawInputStream inputStream(RawInputStreamOptions options) {
+    public InputStream rawInputStream(InputStreamOptions options) {
         return null;
     }
 }
