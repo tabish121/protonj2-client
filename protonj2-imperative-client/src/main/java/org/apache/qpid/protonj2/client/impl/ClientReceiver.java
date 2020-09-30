@@ -145,11 +145,13 @@ public class ClientReceiver implements Receiver {
                 } else {
                     asyncReplenishCreditIfNeeded();
                 }
-            } else {
-                checkClosedOrFailed();
+
+                return delivery;
             }
 
-            return delivery;
+            checkClosedOrFailed();
+
+            throw new ClientException("Failed to receive a message due to an unknown error");
         } catch (InterruptedException e) {
             Thread.interrupted();
             throw new ClientException("Receive wait interrupted", e);
