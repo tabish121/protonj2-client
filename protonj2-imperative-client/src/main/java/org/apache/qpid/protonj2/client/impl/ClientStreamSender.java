@@ -68,13 +68,13 @@ public class ClientStreamSender implements StreamSender {
 
     private final StreamSenderOptions options;
     private final ClientSession session;
-    private final org.apache.qpid.protonj2.engine.Sender protonSender;
     private final ScheduledExecutorService executor;
     private final String senderId;
 
     private volatile Source remoteSource;
     private volatile Target remoteTarget;
 
+    private org.apache.qpid.protonj2.engine.Sender protonSender;
     private InFlightSend blockedOnCredit;
     private volatile int closed;
     private ClientException failureCause;
@@ -687,21 +687,31 @@ public class ClientStreamSender implements StreamSender {
     }
 
     private void handleEngineShutdown(Engine engine) {
-        final Connection connection = engine.connection();
+        if (!isDynamic() && !session.getConnection().getEngine().isShutdown()) {
+            protonSender.localCloseHandler(null);
+            protonSender.localDetachHandler(null);
+            protonSender.close();
+            protonSender = ClientSenderBuilder.recreateSender(session, protonSender, options);
+            protonSender.setLinkedResource(this);
 
-        final ClientException failureCause;
-
-        if (connection.getRemoteCondition() != null) {
-            failureCause = ClientExceptionSupport.convertToConnectionClosedException(connection.getRemoteCondition());
-        } else if (engine.failureCause() != null) {
-            failureCause = ClientExceptionSupport.convertToConnectionClosedException(engine.failureCause());
-        } else if (!isClosed()) {
-            failureCause = new ClientConnectionRemotelyClosedException("Remote closed without a specific error condition");
+            open();
         } else {
-            failureCause = null;
-        }
+            final Connection connection = engine.connection();
 
-        immediateLinkShutdown(failureCause);
+            final ClientException failureCause;
+
+            if (connection.getRemoteCondition() != null) {
+                failureCause = ClientExceptionSupport.convertToConnectionClosedException(connection.getRemoteCondition());
+            } else if (engine.failureCause() != null) {
+                failureCause = ClientExceptionSupport.convertToConnectionClosedException(engine.failureCause());
+            } else if (!isClosed()) {
+                failureCause = new ClientConnectionRemotelyClosedException("Remote closed without a specific error condition");
+            } else {
+                failureCause = null;
+            }
+
+            immediateLinkShutdown(failureCause);
+        }
     }
 
     void handleAnonymousRelayNotSupported() {
